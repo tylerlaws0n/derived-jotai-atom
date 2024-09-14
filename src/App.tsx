@@ -27,6 +27,7 @@ const useRepeatedName = makeUseDerivedAtom((start: number, name: string) =>
 );
 
 function App() {
+  const [rerenderFlag, setRerender] = useState(false);
   const [count, setCount] = useState(0);
   const [name, setName] = useState("John");
 
@@ -43,6 +44,9 @@ function App() {
         </a>
       </div>
       <h1>Vite + React</h1>
+      <button onClick={() => setRerender((r) => !r)}>
+        Toggle Rerender {rerenderFlag.toString()}
+      </button>
       <div className="card">
         <input
           type="text"
