@@ -4,28 +4,33 @@ import viteLogo from "/vite.svg";
 import "./App.css";
 import { useAtom, atom } from "jotai";
 
-const makeUseDerivedAtom = <Start, Derived>(
-  fn: (start: Start) => Derived
-): ((start: Start) => Derived) => {
+const makeUseDerivedAtom = <Args extends any[], Derived>(
+  fn: (...args: Args) => Derived
+): ((...args: Args) => Derived) => {
   const dAtom = atom<Derived>();
 
-  return (start: Start): Derived => {
+  return (...args: Args): Derived => {
     const [derivedState, setDerivedState] = useAtom(dAtom);
 
     useEffect(() => {
-      setDerivedState(fn(start));
-    }, [setDerivedState, start]);
+      console.log("setDerivedState", args);
+      setDerivedState(fn(...args));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, args);
 
     return derivedState!;
   };
 };
 
-const useDoubledAtom = makeUseDerivedAtom((start: number) => start * 2);
+const useRepeatedName = makeUseDerivedAtom((start: number, name: string) =>
+  `${name}\n`.repeat(start)
+);
 
 function App() {
   const [count, setCount] = useState(0);
+  const [name, setName] = useState("John");
 
-  const doubledCount = useDoubledAtom(count);
+  const doubledCount = useRepeatedName(count, name);
 
   return (
     <>
@@ -39,6 +44,11 @@ function App() {
       </div>
       <h1>Vite + React</h1>
       <div className="card">
+        <input
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
         </button>
